@@ -42,3 +42,25 @@ def coco_to_dataframes(coco_data: dict, images_dir: str = None) -> dict[str, pd.
         dfs["categories"] = pd.DataFrame(coco_data["categories"])
     
     return dfs
+
+##########
+def save_coco_annotations(coco_data: dict, dfs: dict[str, pd.DataFrame], output_path: str):
+    """
+    Sauvegarde un dictionnaire COCO mis à jour à partir de DataFrames dans un fichier JSON.
+
+    Args:
+        coco_data (dict): dictionnaire COCO original.
+        dfs (dict[str, pd.DataFrame]): dictionnaire avec au moins "images" et "annotations".
+        output_path (str): chemin du fichier de sortie.
+    """
+    if "images" in dfs:
+        coco_data["images"] = dfs["images"].to_dict(orient="records")
+    if "annotations" in dfs:
+        coco_data["annotations"] = dfs["annotations"].to_dict(orient="records")
+    if "categories" in dfs:
+        coco_data["categories"] = dfs["categories"].to_dict(orient="records")
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(coco_data, f, indent=2, ensure_ascii=False, default=int)
+
+    print(f"[INFO] Fichier COCO sauvegardé → {output_path}")
