@@ -17,7 +17,9 @@ from prepare_data.data_cleaner import (
 )
 
 # ------------------------------
-# Tests pour get_file_extensions
+# 1/ Tests pour get_file_extensions:
+# * Test avec un dossier vide → doit renvoyer []
+# * Test avec des fichiers .jpg, .png, .JPG => doit renvoyer {".jpg", ".png"} (extensions en minuscule et uniques)
 # ------------------------------
 def test_get_file_extensions_empty(tmp_path: Path):
     # Dossier vide
@@ -35,7 +37,9 @@ def test_get_file_extensions_with_files(tmp_path: Path):
     assert set(result) == {".jpg", ".png"}
 
 # ------------------------------
-# Tests pour check_images_consistency
+# 2/ Tests pour check_images_consistency: 
+# * Vérifie que le nombre de fichiers déclarés vs réels est correct
+# * Vérifie le nombre de fichiers manquants et non référencés
 # ------------------------------
 def test_check_images_consistency(tmp_path: Path):
     # Fichiers réels
@@ -55,7 +59,8 @@ def test_check_images_consistency(tmp_path: Path):
     assert stats["unreferenced_count"] == 0
 
 # ------------------------------
-# Tests pour images_without_annotations
+# 3/ Tests pour images_without_annotations: 
+# * Vérifie que les images sans annotations sont correctement identifiées
 # ------------------------------
 def test_images_without_annotations_basic():
     images_df = pd.DataFrame([
@@ -72,7 +77,8 @@ def test_images_without_annotations_basic():
     assert set(result["file_name"]) == {"img2.jpg", "img3.jpg"}
 
 # ------------------------------
-# Tests pour annotations_without_images
+#4/Tests pour annotations_without_images: 
+# * Vérifie que seules les annotations orphelines sont retournées
 # ------------------------------
 def test_annotations_without_images_basic():
     images_df = pd.DataFrame([
@@ -88,7 +94,8 @@ def test_annotations_without_images_basic():
     assert result.iloc[0]["image_id"] == 2
 
 # ------------------------------
-# Tests pour detect_abnormal_annotations
+# 5/ Tests pour detect_abnormal_annotations:
+# * Vérifie que seules les annotations avec des bboxes aberrantes sont détectées
 # ------------------------------
 def test_detect_abnormal_annotations_basic():
     annotations_df = pd.DataFrame([
@@ -102,7 +109,7 @@ def test_detect_abnormal_annotations_basic():
     assert set(result["id"]) == {2, 3}
 
 # ------------------------------
-#  pytest
+#  pytest : cmd terminal
 # ------------------------------
 if __name__ == "__main__":
     pytest.main(["-v", __file__])
