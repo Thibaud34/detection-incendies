@@ -29,9 +29,14 @@ def run_pipeline(annotations_file: str, images_folder: str, output_file: str):
 
     # --- 3. Nettoyer le dataset ---
     print("[START] Nettoyage du dataset...")
-    images_df_clean, annotations_df_clean = clean_dataset(
+    images_df_clean, annotations_df_clean, log = clean_dataset(
         images_df, annotations_df, images_folder
     )
+
+    # Afficher un résumé détaillé
+    print("[INFO] Nettoyage effectué :")
+    for k, v in log.items():
+        print(f"  - {k.replace('_', ' ')} : {v}")
 
     # --- 4. Mettre à jour les DataFrames dans dfs ---
     dfs["images"] = images_df_clean
@@ -39,5 +44,5 @@ def run_pipeline(annotations_file: str, images_folder: str, output_file: str):
 
     # --- 5. Sauvegarder le JSON nettoyé ---
     save_coco_annotations(coco, dfs, output_file)
-
+    print(f"[INFO] Fichier COCO sauvegardé → {output_file}")
     print("[END] Nettoyage terminé ✅")
