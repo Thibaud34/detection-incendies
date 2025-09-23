@@ -7,7 +7,7 @@ import pytest
 
 # --- le dossier parent pour que Python trouve data_cleaner.py ---
 sys.path.append(str(Path(__file__).parent.parent.resolve()))
-
+print(sys.path)
 from prepare_data.data_cleaner import (
     get_file_extensions,
     check_images_consistency,
@@ -15,6 +15,7 @@ from prepare_data.data_cleaner import (
     annotations_without_images,
     detect_abnormal_annotations
 )
+
 
 # ------------------------------
 # 1/ Tests pour get_file_extensions:
@@ -24,12 +25,12 @@ from prepare_data.data_cleaner import (
 # * Test avec un chemin inexistant => doit lever FileNotFoundError
 # ------------------------------
 def test_get_file_extensions_empty(tmp_path: Path):
-    """Cas : dossier vide → doit renvoyer une liste vide"""
+    """Cas : dossier vide => doit renvoyer une liste vide"""
     result = get_file_extensions(str(tmp_path))
     assert result == []
 
 def test_get_file_extensions_with_files(tmp_path: Path):
-    """Cas : différents fichiers → extensions uniques et en minuscule"""
+    """Cas : différents fichiers => extensions uniques et en minuscule"""
     (tmp_path / "a.jpg").touch()
     (tmp_path / "b.png").touch()
     (tmp_path / "c.JPG").touch()
@@ -37,13 +38,13 @@ def test_get_file_extensions_with_files(tmp_path: Path):
     assert set(result) == {".jpg", ".png"}
 
 def test_get_file_extensions_with_file_no_extension(tmp_path: Path):
-    """Cas : fichier sans extension → ne doit pas planter"""
+    """Cas : fichier sans extension => ne doit pas planter"""
     (tmp_path / "readme").touch()
     result = get_file_extensions(str(tmp_path))
     assert result == []  # pas d'extension si fichier sans extension
 
 def test_get_file_extensions_invalid_path():
-    """Cas : chemin inexistant → doit lever une FileNotFoundError"""
+    """Cas : chemin inexistant => doit lever une FileNotFoundError"""
     with pytest.raises(FileNotFoundError):
         get_file_extensions("chemin/inexistant")
 
@@ -60,7 +61,7 @@ def test_check_images_consistency(tmp_path: Path):
     images_df = pd.DataFrame([
         {"id": 1, "file_name": "img1.jpg"},
         {"id": 2, "file_name": "img2.jpg"},
-        {"id": 3, "file_name": "img3.jpg"}  # manquan
+        {"id": 3, "file_name": "img3.jpg"}  # c'est ou il y a manquante 
     ])
     stats = check_images_consistency(images_df, str(tmp_path))
     assert stats["total_declared"] == 3
@@ -71,7 +72,7 @@ def test_check_images_consistency(tmp_path: Path):
 def test_check_images_consistency_extra_file(tmp_path: Path):
     """Cas : fichier présent mais pas déclaré"""
     (tmp_path / "img1.jpg").touch()
-    (tmp_path / "img2.jpg").touch()  # non référencé
+    (tmp_path / "img2.jpg").touch()  # fichier non déclaré 
     images_df = pd.DataFrame([
         {"id": 1, "file_name": "img1.jpg"}
     ])
@@ -102,7 +103,7 @@ def test_images_without_annotations_basic():
     assert set(result["file_name"]) == {"img2.jpg", "img3.jpg"}
 
 def test_images_without_annotations_empty():
-    """Cas : aucune image → doit renvoyer un DF vide"""
+    """Cas : aucune image => doit renvoyer un DF vide"""
     images_df = pd.DataFrame([], columns=["id", "file_name"])
     annotations_df = pd.DataFrame([], columns=["id", "image_id"])
     result = images_without_annotations(images_df, annotations_df)
@@ -153,7 +154,7 @@ def test_detect_abnormal_annotations_basic():
     assert set(result["id"]) == {2, 3}
 
 def test_detect_abnormal_annotations_all_valid():
-    """Cas : toutes les bboxes valides → doit renvoyer un DF vide"""
+    """Cas : toutes les bboxes valides => doit renvoyer un DF vide"""
     annotations_df = pd.DataFrame([
         {"id": 1, "bbox": [0, 0, 10, 10]},
         {"id": 2, "bbox": [5, 5, 15, 15]},
