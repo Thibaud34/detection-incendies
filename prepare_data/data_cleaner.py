@@ -4,6 +4,23 @@ from typing import Optional, Union
 import pandas as pd
 
 
+# def get_file_extensions(folder_path: str):
+#     """
+#     Retourne la liste des extensions uniques des fichiers dans le dossier donné.
+
+#     Args:
+#         folder_path (str): chemin du dossier
+
+#     Returns:
+#         list: extensions trouvées (ex: ['.jpg', '.png'])
+#     """
+#     folder = Path(folder_path)
+#     if not folder.exists() or not folder.is_dir():
+#         raise FileNotFoundError(f"Le dossier {folder_path} est introuvable.")
+
+#     # Compréhension de liste pour récupérer toutes les extensions
+#     extensions = list({f.suffix.lower() for f in folder.iterdir() if f.is_file()})
+#     return extensions
 def get_file_extensions(folder_path: str):
     """
     Retourne la liste des extensions uniques des fichiers dans le dossier donné.
@@ -19,9 +36,8 @@ def get_file_extensions(folder_path: str):
         raise FileNotFoundError(f"Le dossier {folder_path} est introuvable.")
 
     # Compréhension de liste pour récupérer toutes les extensions
-    extensions = list({f.suffix.lower() for f in folder.iterdir() if f.is_file()})
+    extensions = list({f.suffix.lower() for f in folder.iterdir() if f.is_file() and f.suffix})
     return extensions
-
 
 ##############################################################
 
@@ -67,7 +83,7 @@ def images_without_annotations(
         images_df (pd.DataFrame): DataFrame issu de "images" du JSON COCO (doit contenir 'id' et 'file_name').
         annotations_df (pd.DataFrame): DataFrame des annotations (doit contenir 'image_id').
         images_dir (str | Path, optional): si fourni, ajoute une colonne 'file_path' construite
-                                           comme images_dir / file_name.
+                                        comme images_dir / file_name.
 
     Returns:
         pd.DataFrame: DataFrame (copie) des lignes d'images sans annotations. Vide si aucune.
@@ -132,75 +148,3 @@ def detect_abnormal_annotations(annotations_df: pd.DataFrame) -> pd.DataFrame:
     ]
     
     return abnormal
-
-
-
-#### NETTOYAGE  ####
-
-import os
-import pandas as pd
-
-# 1 : Supprimer les images sans annotations
-def remove_images_without_annotations(images_df: pd.DataFrame,
-                                      annotations_df: pd.DataFrame,
-                                      images_folder: str) -> pd.DataFrame:
-    images_with_annotations = annotations_df['image_id'].unique()
-    images_to_remove = images_df[~images_df['id'].isin(images_with_annotations)]
-
-    print(f"[INFO] {len(images_to_remove)} images supprimées (sans annotations)")
-
-    for _, row in images_to_remove.iterrows():
-        img_path = os.path.join(images_folder, row['file_name'])
-        if os.path.exists(img_path):
-            os.remove(img_path)
-
-    images_df = images_df[images_df['id'].isin(images_with_annotations)]
-    return images_df
-
-
-# 2 : Corriger les bounding boxes hors limites
-def fix_bbox(row, img_w, img_h):
-    x, y, w, h = row['bbox']
-    x_max = min(x + w, img_w)
-    y_max = min(y + h, img_h)
-    x = max(x, 0)
-    y = max(y, 0)
-    w = max(1, x_max - x)
-    h = max(1, y_max - y)
-    return [x, y, w, h]
-
-def correct_bboxes(images_df: pd.DataFrame,
-                   annotations_df: pd.DataFrame) -> pd.DataFrame:
-    annotations_fixed = []
-    corrected = 0
-    for _, ann in annotations_df.iterrows():
-        img_info = images_df.loc[images_df['id'] == ann['image_id']]
-        if not img_info.empty:
-            img_w = img_info['width'].values[0]
-            img_h = img_info['height'].values[0]
-            old_bbox = ann['bbox']
-            ann['bbox'] = fix_bbox(ann, img_w, img_h)
-            if ann['bbox'] != old_bbox:
-                corrected += 1
-        annotations_fixed.append(ann)
-
-    print(f"[INFO] {corrected} bounding boxes corrigées")
-    return pd.DataFrame(annotations_fixed)
-
-
-# 3 : Pipeline global
-def clean_dataset(images_df: pd.DataFrame,
-                  annotations_df: pd.DataFrame,
-                  images_folder: str,
-                  min_annotations: int = 3):
-    """
-    Pipeline complet :
-    1. Supprimer les images sans annotations
-    2. Corriger les bounding boxes hors limites
-    """
-    print("[START] Nettoyage du dataset...")
-    images_df = remove_images_without_annotations(images_df, annotations_df, images_folder)
-    annotations_df = correct_bboxes(images_df, annotations_df)
-    print("[END] Nettoyage terminé ")
-    return images_df, annotations_df
-
