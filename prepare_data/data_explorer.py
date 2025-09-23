@@ -18,7 +18,7 @@ def annotations_statistics(annotations_df: pd.DataFrame, images_df: pd.DataFrame
     return stats
 
 def count_images_with_few_annotations(annotations_df: pd.DataFrame, images_df: pd.DataFrame, threshold: int = 3) -> int:
-    stats = annotations_df.groupby("image_id").size()
+    stats = annotations_df.groupby("image_id").size().reindex(images_df["id"], fill_value=0)
     return (stats < threshold).sum()
 
 def check_invalid_bounding_boxes(annotations_df: pd.DataFrame, images_df: pd.DataFrame) -> pd.DataFrame:
