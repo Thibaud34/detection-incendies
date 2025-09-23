@@ -27,6 +27,23 @@ def test_count_images_basic():
     ])
     assert count_images(images_df) == 2
 
+
+def test_count_images_single():
+    """Cas : une seule image -> doit retourner 1"""
+    images_df = pd.DataFrame([{"id": 1, "file_name": "img1.jpg"}])
+    assert count_images(images_df) == 1
+
+
+def test_count_images_with_extra_columns():
+    """Cas : colonnes supplémentaires -> doit quand même compter les lignes"""
+    images_df = pd.DataFrame([
+        {"id": 1, "file_name": "img1.jpg", "width": 100},
+        {"id": 2, "file_name": "img2.jpg", "height": 200}
+    ])
+    assert count_images(images_df) == 2
+
+
+
 # ------------------------------
 # 2/ Tests pour list_categories
 # ------------------------------
