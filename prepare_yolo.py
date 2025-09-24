@@ -15,7 +15,7 @@ os.makedirs(labels_dir, exist_ok=True)
 with open(coco_json_path) as f:#ouvrir le fichier json
     coco = json.load(f)
 
-# Créer mapping image_id -> info image pour accès rapide
+# Créer mapping image_id => info image pour accès rapide
 image_dict = {img['id']: img for img in coco['images']}
 
 # # --- Convert COCO to YOLO ---
@@ -42,7 +42,7 @@ for ann in coco['annotations']:
     with open(file_path_txt, "a") as f:
         f.write(f"{class_id} {x_center:.6f} {y_center:.6f} {w_norm:.6f} {h_norm:.6f}\n")
 
-print(f"Conversion COCO → YOLO terminée. Fichiers labels créés dans : {labels_dir}")
+print(f"Conversion COCO => YOLO terminée. Fichiers labels créés dans : {labels_dir}")
 
 # --- Dataset split (70/20/10) ---
 splits = {"train": 0.7, "val": 0.2, "test": 0.1}
