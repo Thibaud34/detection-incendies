@@ -1,0 +1,17 @@
+# chemins
+path: data/datase_yolo
+train: train/images
+val: val/images
+test: test/images
+
+# nbr classe
+nc: 2
+
+# nom des classes
+names:
+  0: wildfire
+  1: fire
+
+
+
+# virer la data

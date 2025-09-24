@@ -23,7 +23,7 @@ def coco_to_yolo(
         seed (int): Graine aléatoire pour la reproductibilité.
     """
     
-    # Charger annotations COCO
+    # Charger annotations COCO #
     with open(coco_json_path, "r") as f:
         coco = json.load(f)
 
