@@ -1,9 +1,9 @@
 # data.yaml
 
 # Chemins datasets
-train: dataset/train/images
-val: dataset/val/images
-test: dataset/test/images
+train: train/images
+val: val/images
+test: test/images
 
 # Nb de class
 nc: 2  
