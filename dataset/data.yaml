@@ -1,0 +1,14 @@
+# data.yaml
+
+# Chemins datasets
+train: train/images
+val: val/images
+test: test/images
+
+# Nb de class
+nc: 2  
+
+# Noms des classe (zone brûlée)
+names: 
+  0: wildfire
+  1: fire
